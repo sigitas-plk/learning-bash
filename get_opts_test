@@ -1,0 +1,45 @@
+#!/usr/bin/env bats
+
+source ./get_opts &> /dev/null # dont' want outputs, just import functions to test seperately
+
+@test "invoking foo without arguments prints usage" {
+    skip
+    run get_opts
+    [[ "${lines[0]}" = "Usage: get_opts [options][operands]" ]]
+}
+
+@test "terminate_with_message should write out given string and exit with 1" {
+    run terminate_with_message "ms"
+    [[ "$status" -eq 1 ]]
+    [[ "${lines[0]}" = "ms" ]]
+}
+
+@test "terminate_with_message without message, should still exit with 1" {
+    run terminate_with_message
+    [[ "$status" -eq 1 ]]
+    [[ ! "${lines[0]}" ]]
+}
+
+@test "-v should exit with 1 if provided with anything else then numbers dots or dashes" {
+    run get_opts -v 0.0.1a
+    [[ "$status" -eq 1 ]]
+    [[ "${lines[0]}" ]]
+}
+
+# @test "-v should not exit if given correct version number format" {
+#     run get_opts -v "0-123.3"
+#     [[ "$status" -eq 0 ]]
+#     [[ ! "${lines[0]}" ]]
+# }
+
+@test "-f should exit with 1 if file is not found" {
+    run get_opts -f sample_file_which_doesn_exist.txt
+    [[ "$status" -eq 1 ]]
+    [[ "${lines[0]}" ]]
+}
+
+@test "-u should exit with 1 if credentials do not contain colon" {
+    run get_opts -u "user_name pass"
+    [[ "$status" -eq 1 ]]
+    [[ "${lines[0]}" ]]
+}

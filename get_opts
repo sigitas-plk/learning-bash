@@ -1,0 +1,73 @@
+#!/bin/bash
+
+usage() {
+cat <<END
+Usage: get_opts [options][operands]
+
+Required options:
+    -r      repository we are uploading to
+    -g      group id
+    -a      artifact id
+    -v      artifact version
+    -file   file name to be uploaded (relative to this script)
+    -u      user credentials in a pettern 'user:password'
+    -url    nexus upload url
+
+Optional otions:
+    -e      file extension (zip, txt ect), defaults to zip
+    -p      packaging (zip, jar ect.), defaults to zip
+END
+}
+
+terminate_with_message(){
+    if [[ $1 ]]; then
+        echo "$1" >&2;
+    fi
+    exit 1;
+}
+
+declare repository=""
+declare pom=false
+declare file_extension="zip"
+declare group_id=""
+declare artifact_id=""
+declare artifact_version=""
+declare packaging="zip"
+declare file=""
+declare user_creds=""
+declare url=""
+
+
+while getopts ":r:g:a:v:f:u:url" opt; do
+    case $opt in
+        r)
+            repository="${OPTARG}"
+        ;;
+        g)
+            group_id="${OPTARG}"
+        ;;
+        a)
+            artifact_id="${OPTARG}"
+        ;;
+        v)
+            [[ ${OPTARG} =~ ^[0-9\.\-]+$ ]] || terminate_with_message "Version should only contain numbers with dots and dashes instead got ${OPTARG}"
+            artifact_version=${OPTARG}
+        ;;
+        f)
+            [[ -e ${OPTARG} ]] || terminate_with_message "File ${OPTARG} could not be found. Make sure file exists, and path is relative to this script."
+            file="${OPTARG}"
+        ;;
+        u)
+            [[ ${OPTARG} =~ ^(.+)+:(.+) ]] || terminate_with_message "User credentials should be seperated by colon <user_name>:<user_pass>. ${OPTARG}"
+            user_red="${OPTARG}"
+        ;;
+        url)
+         [[ ${OPTARG} =]]
+        :)
+            terminate_with_message "Option -${OPTARG} is missing argument"
+        ;;
+        \?)
+            terminate_with_message "Unknown option: -${OPTARG}"
+        ;;
+    esac
+done
